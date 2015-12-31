@@ -26,22 +26,33 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-  {% block content %}
-  {% endblock %}
-  <script type = "text/javascript" src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+  <div id="wrapper">
+    {% block content %}
+    {% endblock %}
+  </div>
   <script type = "text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <script type = "text/javascript" src="{% static 'bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'bower_components/raphael/raphael-min.js' %}"></script>
   <script type="text/javascript" src="{% static 'bower_components/morrisjs/morris.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'bower_components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js' %}"></script>
   <script>
-    $("#logout").click(function(){
+    $(document).ready(function(){
       var data;
-      $.post("logout",data,function(data,status,xhr){
-      }).done(function(){
-       window.location.replace("/admin/login");
+      $.get("/admin/getAllCategories",data, function(data,status,xhr){
+      }).done(function(data){
+        var thisElem = $("#InventoryList ul")
+        for (var i = 0; i < data.length; i++){
+          thisElem.append("<li><a href=\"/admin/inventory/" + data[i]["pk"] + "\">" + data[i]["fields"]["name"] + "</li>")
+        }
       })
-    });
+      $("#logout").click(function(){
+        var data;
+        $.post("/admin/logout",data,function(data,status,xhr){
+        }).done(function(){
+         window.location.replace("/admin/login");
+        })
+      });
+    })
   </script>  
 </html>
 

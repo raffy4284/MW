@@ -1,11 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .forms import loginForm
+from .forms import loginForm, CategoryForm 
 from django.contrib.auth import authenticate,login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
-
+from store.models import Category, Product
+from django.core.exceptions import ObjectDoesNotExist
 
 def loginPage(request):
   messages.success(request, "Log-in success!")
@@ -45,4 +46,33 @@ def logoutUser(request):
     logout(request)
     return redirect("login") 
   else:
+    return HttpResponse("404")
+
+@user_passes_test(lambda u: u.is_superuser, login_url="login")
+def getCategorybyID(request):
+  if request.method == "GET":
+    categoryRequest = CategoryForm(request.GET)
+    if categoryRequest.is_valid():
+      return HttpResponse(Category.getCategory(categoryRequest['id']), content_type = 'application/json')
+    else:
+      return HttpResponse("Incorrect data")
+  else:
     return HttpResponse("404") 
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def getAllCategories(request):
+  if request.method == "GET":
+    return HttpResponse(Category.getAllCategories(), content_type = 'application/json')
+  else:
+    return HttpResponse("404")
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def inventory(request, ID):
+  if ID != "all":
+    try:
+      category = Category.objects.get(pk=int(ID)).name #fix! must account for non-existing id's
+    except ObjectDoesNotExist:
+      return HttpResponse("404")
+  else:
+    category = "All Items"
+  return render(request, 'dashboard/inventory.html', { "category" : category })
