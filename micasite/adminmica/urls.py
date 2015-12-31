@@ -9,4 +9,5 @@ urlpatterns = [
   url(r'^getAllCategories', views.getAllCategories, name = "getAllCategories"),
   url(r'^getCategorybyID', views.getCategorybyID, name = "getCategorybyID"),
   url(r'^inventory/(?P<ID>[0-9]+|all)', views.inventory, name = "inventory"),
+  url(r'^getProducts/(?P<category>[a-zA-Z0-9]+|all)', views.getProducts, name = "getProducts"), 
 ]

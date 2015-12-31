@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from store.models import Category, Product
 from django.core.exceptions import ObjectDoesNotExist
+import json
 
 def loginPage(request):
   messages.success(request, "Log-in success!")
@@ -76,3 +77,27 @@ def inventory(request, ID):
   else:
     category = "All Items"
   return render(request, 'dashboard/inventory.html', { "category" : category })
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def getProducts(request,category):
+  if category != "all":
+    category = Category.objects.filter(name = category)
+    products = Product.objects.filter(category = category)
+  else:
+    products = Product.objects.all()
+  data = json.dumps(
+  {
+    "data":[
+      {
+        'productID' : o.id,
+        'name' : o.name,
+        'price' : str(o.price),
+        'category' : o.category.name,
+        'weight' : str(o.weight),
+        'description' : o.description,
+        'updated_at' : str(o.updated_at.now()),
+        'created_at' : str(o.created_at.now())
+      } for o in products
+    ]
+  })
+  return HttpResponse(data, content_type = 'application/json')

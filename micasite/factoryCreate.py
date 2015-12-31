@@ -20,4 +20,4 @@ if __name__ == "__main__":
           category = categories[random.randrange(1,len(categories))],
           weight = 12,
           description = fake.paragraph()
-        )
+        ).save()
