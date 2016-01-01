@@ -17,7 +17,7 @@ if __name__ == "__main__":
         Product(
           name = fake.word(), 
           price = random.randrange(1,10000,2)+int(random.random()*100)/100.0,
-          category = categories[random.randrange(1,len(categories))],
+          category = categories[random.randrange(0,len(categories))],
           weight = 12,
           description = fake.paragraph()
         ).save()
