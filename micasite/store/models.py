@@ -32,7 +32,7 @@ class Product(models.Model):
   name = models.CharField(max_length = 100, blank = False)
   price = models.DecimalField(decimal_places = 2, blank = False, max_digits = 6)
   category = models.ForeignKey(Category, on_delete = models.CASCADE)
-  vendory = models.ForeignKey(Vendor, on_delete = models.CASCADE)
+  vendor = models.ForeignKey(Vendor, on_delete = models.CASCADE)
   weight = models.DecimalField(decimal_places = 4, blank = True, max_digits = 8)
   description = models.TextField(blank = True);	
   updated_at = models.DateTimeField(auto_now = True, unique_for_date = True)
