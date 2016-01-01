@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from store.models import Category, Product
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json
 
 def loginPage(request):
@@ -71,12 +72,24 @@ def getAllCategories(request):
 def inventory(request, ID):
   if ID != "all":
     try:
-      category = Category.objects.get(pk=int(ID)).name #fix! must account for non-existing id's
+      category = Category.objects.get(pk=int(ID))
+      products = Product.objects.filter(category=category)
+      category = category.name
+      paginator = Paginator(products, 25)
     except ObjectDoesNotExist:
       return HttpResponse("404")
   else:
     category = "All Items"
-  return render(request, 'dashboard/inventory.html', { "category" : category })
+    products = Product.objects.all() 
+    paginator = Paginator(products,25)
+  page = request.GET.get('page')
+  try:
+    productSet = paginator.page(page)
+  except PageNotAnInteger:
+    productSet = paginator.page(1)
+  except EmptyPage:
+    productSet = paginator.page(paginator.num_pages)
+  return render(request, 'dashboard/inventory.html', { "category" : category, "products" : productSet })
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def getProducts(request,category):
