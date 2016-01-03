@@ -1,6 +1,6 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .forms import loginForm, CategoryForm 
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import loginForm, CategoryForm, EditProductForm 
 from django.contrib.auth import authenticate,login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from store.models import Category, Product
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+import datetime
 import json
 
 def loginPage(request):
@@ -89,7 +91,7 @@ def inventory(request, ID):
     productSet = paginator.page(1)
   except EmptyPage:
     productSet = paginator.page(paginator.num_pages)
-  return render(request, 'dashboard/inventory.html', { "category" : category, "products" : productSet })
+  return render(request, 'dashboard/inventory/index.html', { "category" : category, "products" : productSet })
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def getProducts(request,category):
@@ -114,3 +116,31 @@ def getProducts(request,category):
     ]
   })
   return HttpResponse(data, content_type = 'application/json')
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def editInventory(request,ID):
+  product = get_object_or_404(Product,pk = ID)
+  if request.method == "POST":
+    form = EditProductForm(request.POST, instance = product)
+    if form.is_valid():
+      product = form.save(commit = False)
+      product.updated_at = datetime.datetime.now()
+      product.save()
+      messages.success(request, "Inventory item was updated successfully")    
+      messages.set_level(request,messages.SUCCESS)
+      return redirect("/admin/inventory/all")
+  else:
+    form = EditProductForm(instance = product)
+  return render(request, 'dashboard/inventory/edit.html',{ "form" : form })
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def deleteInventory(request,ID):
+  product = get_object_or_404(Product,pk=ID)
+  if request.method == "POST": #temporary
+    product.delete()
+    messages.success(request, "Inventory item was deleted successfully")    
+    messages.set_level(request,messages.SUCCESS)
+    return redirect("/admin/inventory/all")
+  else:
+    return HttpResponse("404")
