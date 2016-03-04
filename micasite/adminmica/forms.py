@@ -27,6 +27,7 @@ class EditProductForm(ModelForm):
 class VendorForm(ModelForm):
   class Meta:
     model = Vendor
+    exclude = []
     widgets = {
       'name' : forms.TextInput(attrs={'class' : 'form-control'}),
       'address' : forms.TextInput(attrs={'class' : 'form-control'}),

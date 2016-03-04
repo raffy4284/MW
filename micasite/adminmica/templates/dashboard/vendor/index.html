@@ -20,7 +20,7 @@
           </div>
           <div class='panel-body'>
             <div class='dataTable_wrapper'>
-              <table id="vendor" class="table table-striped table-bordered" cellspacing="0" width="100%">
+              <table id="vendor" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -29,7 +29,7 @@
                     <th>City</th>
                     <th>State</th>
                     <th>Zip</th>
-                    <th>Description</th>
+                    <th data-priority="-4">Description</th>
                     <th>Website</th>
                     <th>Phone</th>
                     <th>Email</th>
@@ -59,7 +59,7 @@
         name : "name",
       }, { 
         label: "Address",
-        name : "addres",
+        name : "address",
       }, {
         label: "City",
         name : "city",
@@ -87,12 +87,23 @@
       }
     ]
   }); 
+  $('#vendor').on( 'click', 'tbody td, tbody span.dtr-data', function (e) {
+    // Ignore the Responsive control and checkbox columns
+      if ($(this).hasClass( 'control' )) 
+        return 
+      editor.inline( this, {
+        onBlur: 'submit'
+      });
+  });
   var vendor_table = $('#vendor').DataTable({
     dom: "Bfrtip",
-    responsive : true,
     ajax: '/store/Vendor/',
+    responsive: true,
     columns: [
-      { data : "id" },
+      {
+        data : "id",
+        className: 'control'
+      },
       { data : "name"},
       { data : "address"},
       { data : "city"},
@@ -105,7 +116,10 @@
       { data : "date_joined"}
     ],
     order: [ 1, 'asc' ],
-    select: true,
+    select: {
+      style:    'os',
+      selector: 'td.select-checkbox'
+   },
     buttons : [
       { 
         extend: "create",

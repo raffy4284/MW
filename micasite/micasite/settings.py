@@ -75,17 +75,29 @@ WSGI_APPLICATION = 'micasite.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'MICADB',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+POSTGRES = True
+if POSTGRES:
+    DATABASES = {
+        'default' : {
+            'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+            'NAME' : 'micadb',
+            'USER' : 'raffy4284',
+            'PASSWORD' : 'Matteramart1',
+            'HOST' : 'localhost',
+            'PORT' : '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {    
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'MICADB',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
