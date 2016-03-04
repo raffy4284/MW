@@ -1,7 +1,7 @@
 from django.db import models
 from django.core import serializers
 from django.core.validators import RegexValidator
-
+from micasite.custom_classes import SerializerMixin
 class Category(models.Model):
   name = models.CharField(max_length = 100, blank = False)
   @staticmethod
@@ -12,8 +12,9 @@ class Category(models.Model):
     return serializers.serialize("json", Category.objects.filter(pk__in=id)) 
   def __str__(self): 
     return self.name
-
-class Vendor(models.Model):
+  def serialize(self, exclude_list=[]):
+    return serializers.serialize('json', [self])
+class Vendor(models.Model, SerializerMixin):
   name = models.CharField(max_length = 100, blank = False)
   address = models.CharField(max_length = 100)
   city = models.CharField(max_length = 100)

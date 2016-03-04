@@ -1,14 +1,13 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import loginForm, CategoryForm, EditProductForm 
+from .forms import loginForm, CategoryForm, EditProductForm, VendorForm 
 from django.contrib.auth import authenticate,login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
-from store.models import Category, Product
+from store.models import Category, Product, Vendor
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
 import datetime
 import json
 
@@ -71,6 +70,27 @@ def getAllCategories(request):
     return HttpResponse("404")
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def createCategory(request):
+  if request.method == "POST":
+    try:
+      data = json.loads(request.body)
+      new_category = Category(name=data['name'])
+      new_category.save()
+      response = HttpResponse(new_category.serialize(), content_type='application/json') 
+      response['status'] = 200
+      return response
+    except:
+      response = HttpResponse(
+          content={'msg' : 'Invalid json parameter'},  
+          content_type="application/json",
+          status=500,
+          reason="Invalid json parameter"
+      )
+      return response
+  else:
+    return HttpResponse(status=404) 
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def inventory(request, ID):
   if ID != "all":
     try:
@@ -128,10 +148,10 @@ def editInventory(request,ID):
       product.save()
       messages.success(request, "Inventory item was updated successfully")    
       messages.set_level(request,messages.SUCCESS)
-      return redirect("/admin/inventory/all")
+      return redirect("/admin/inventory/all/")
   else:
     form = EditProductForm(instance = product)
-  return render(request, 'dashboard/inventory/edit.html',{ "form" : form })
+  return render(request, 'dashboard/inventory/edit.html',{"form" : form, "model" : "Product"})
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
@@ -144,3 +164,23 @@ def deleteInventory(request,ID):
     return redirect("/admin/inventory/all")
   else:
     return HttpResponse("404")
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def editVendor(request, ID):
+  vendor = get_object_or_404(Vendor, pk=ID)
+  if request.method == "POST":
+    form = VendorForm(request.POST, instance=vendor)
+    if form.is_valid():
+      vendor = form.save(commit = False)
+      vendor.save()
+      messages.success(request, "Vendor was updated successfully")
+      messages.set_level(request, messages.SUCCESS)
+      return redirect("/admin/inventory/all/")
+  else:
+    form = VendorForm(instance=vendor)
+  return render(request, 'dashboard/inventory/edit.html', {"form" : form, "model" : "Vendor"}) 
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def vendor(request):
+  return render(request, 'dashboard/vendor/index.html', {})
+

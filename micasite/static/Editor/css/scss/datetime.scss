@@ -108,8 +108,9 @@ div.editor-datetime {
 			position: absolute;
 			top: 6px;
 			left: 0;
-			opacity: 0;
 			cursor: pointer;
+			opacity: 0;
+			-ms-filter: "alpha(opacity=0)";
 		}
 	}
 

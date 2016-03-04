@@ -3,4 +3,5 @@ from django.conf.urls import include, url
 
 urlpatterns = [
     url(r'^admin/', include('adminmica.urls')),
+    url(r'^store/', include('store.urls'))
 ]

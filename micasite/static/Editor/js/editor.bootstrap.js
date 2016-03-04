@@ -164,7 +164,8 @@ DataTable.Editor.display.bootstrap = $.extend( true, {}, DataTable.Editor.models
 			})
 			.appendTo( 'body' )
 			.modal( {
-				"backdrop": "static"
+				backdrop: "static",
+				keyboard: false
 			} );
 
 		$('input:not([type=checkbox]):not([type=radio]), select, textarea', self._dom.content)
