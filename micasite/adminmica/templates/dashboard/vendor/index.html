@@ -23,17 +23,18 @@
               <table id="vendor" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>City</th>
-                    <th>State</th>
-                    <th>Zip</th>
-                    <th data-priority="-4">Description</th>
-                    <th>Website</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Date Joined</th>
+                    <th data-priority="-1"></th>
+                    <th data-priority="0">ID</th>
+                    <th data-priority="1">Name</th>
+                    <th data-priority="2">Address</th>
+                    <th data-priority="3">City</th>
+                    <th data-priority="4">State</th>
+                    <th data-priority="5">Zip</th>
+                    <th data-priority="10">Description</th>
+                    <th data-priority="6" >Website</th>
+                    <th data-priority="7">Phone</th>
+                    <th data-priority="8">Email</th>
+                    <th data-priority="9">Date Joined</th>
                   </tr>
                 </thead>
               </table>
@@ -43,6 +44,7 @@
       </div>
     </div>
   </div>
+
 <script>
   $.ajaxSetup({ 
     beforeSend: function(xhr, settings) {
@@ -50,7 +52,28 @@
     }
   })
   editor = new $.fn.dataTable.Editor({
-    ajax: '/store/Vendor/',
+    ajax: {
+      create: {
+        type: 'POST',
+        url:  '/store/Vendor/create/',
+        traditional: false,
+        dataType : 'json'
+      },
+      edit: {
+        type: 'PUT',
+        url:  '/store/Vendor/edit/_id_/',
+        headers: { 'X_METHODOVERRIDE': 'PUT' },
+        traditional: false,
+        dataType : 'json',
+      },
+      remove: {
+        type: 'DELETE',
+        url:  '/store/Vendor/delete/_id_/',
+        headers : { 'X_METHODOVERRIDE' : 'DELETE' },
+        traditional : false,
+        dataType : 'json'
+      }
+    },
     table: '#vendor',
     idSrc : 'id',
     fields: [
@@ -72,6 +95,7 @@
       }, {
         label: "Description",
         name : "description",
+        type : 'textarea'
       }, {
         label: "Website",
         name : "website_url",
@@ -83,26 +107,38 @@
         name : "email"
       }, {
         label: "Date Joined",
-        name : "date_joined"
+        name : "date_joined",
+	type : "date"
       }
     ]
-  }); 
-  $('#vendor').on( 'click', 'tbody td, tbody span.dtr-data', function (e) {
-    // Ignore the Responsive control and checkbox columns
-      if ($(this).hasClass( 'control' )) 
-        return 
-      editor.inline( this, {
-        onBlur: 'submit'
-      });
   });
+  editor.on('preSubmit', function(e, data, action){
+    var valueList = {};
+    for (var index in data['data']){
+      valueList[index] = data['data'][index]
+    }
+    delete data['data'];
+    data['data'] = []
+    var data_value;
+    for (var index in valueList){
+      data_value = valueList[index];
+      data_value['id'] = index;
+      data['data'].push(JSON.stringify(data_value));
+    }
+  });
+  
   var vendor_table = $('#vendor').DataTable({
     dom: "Bfrtip",
     ajax: '/store/Vendor/',
-    responsive: true,
     columns: [
+      { 
+        data : null,
+        defaultContent: '',
+        className : 'control',
+        orderable: false
+      },
       {
         data : "id",
-        className: 'control'
       },
       { data : "name"},
       { data : "address"},
@@ -116,10 +152,7 @@
       { data : "date_joined"}
     ],
     order: [ 1, 'asc' ],
-    select: {
-      style:    'os',
-      selector: 'td.select-checkbox'
-   },
+    select : true, 
     buttons : [
       { 
         extend: "create",
@@ -135,5 +168,6 @@
       }
     ]      
   });
+    $("#address").select2({allowClear: true});
 </script>
 {% endblock %}

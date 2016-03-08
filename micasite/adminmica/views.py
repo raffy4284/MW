@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from store.models import Category, Product, Vendor
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from micasite.settings import GOOGLE_API_CLIENT_KEY
 import datetime
 import json
 
@@ -65,7 +66,12 @@ def getCategorybyID(request):
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def getAllCategories(request):
   if request.method == "GET":
-    return HttpResponse(Category.getAllCategories(), content_type = 'application/json')
+    all_categories = []
+    for i in Category.objects.all():
+        serialized = i.__serialize__(exclude_list = ['subcategory', 'category'])
+        serialized['subcategory'] = [{'id' : sub.id, 'name' : sub.name } for sub in i.subcategory_set.all()]
+        all_categories.append(serialized)   
+    return JsonResponse(all_categories, safe=False)
   else:
     return HttpResponse("404")
 
@@ -92,26 +98,7 @@ def createCategory(request):
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def inventory(request, ID):
-  if ID != "all":
-    try:
-      category = Category.objects.get(pk=int(ID))
-      products = Product.objects.filter(category=category)
-      category = category.name
-      paginator = Paginator(products, 25)
-    except ObjectDoesNotExist:
-      return HttpResponse("404")
-  else:
-    category = "All Items"
-    products = Product.objects.all() 
-    paginator = Paginator(products,25)
-  page = request.GET.get('page')
-  try:
-    productSet = paginator.page(page)
-  except PageNotAnInteger:
-    productSet = paginator.page(1)
-  except EmptyPage:
-    productSet = paginator.page(paginator.num_pages)
-  return render(request, 'dashboard/inventory/index.html', { "category" : category, "products" : productSet })
+  return render(request, 'dashboard/inventory/index.html', { "category" : Category.objects.get(id=ID) })
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def getProducts(request,category):
@@ -182,5 +169,5 @@ def editVendor(request, ID):
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def vendor(request):
-  return render(request, 'dashboard/vendor/index.html', {})
+  return render(request, 'dashboard/vendor/index.html', {"GOOGLE_API_KEY" : GOOGLE_API_CLIENT_KEY})
 

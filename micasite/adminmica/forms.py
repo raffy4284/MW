@@ -18,7 +18,7 @@ class EditProductForm(ModelForm):
     widgets = {
       'name' : forms.TextInput(attrs={'class' : 'form-control'}),
       'price' : forms.NumberInput(attrs={'class' : 'form-control'}),
-      'category': forms.Select(attrs={'class' : 'form-control'}),
+      'sub_category': forms.Select(attrs={'class' : 'form-control'}),
       'vendor': forms.Select(attrs={'class' : 'form-control'}),
       'description' : forms.Textarea(attrs = {'class' : 'form-control', 'style' : 'resize:vertical'}),
       'weight' : forms.NumberInput(attrs = {'class' : 'form-control'})

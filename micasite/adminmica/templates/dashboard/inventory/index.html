@@ -1,141 +1,275 @@
 {% extends 'base.html' %} 
 {% load static %}
 {% block content %}
- {% include "dashboard/components/navbarmain.html" %}
+{% include "dashboard/components/navbarmain.html" %}
   <div id="page-wrapper">
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-          <h1 class="page-header">Inventory <small>Category : {{category}}</small></h1>
-        </div>
-        <!-- /.col-lg-12 -->
-        <div class="col-lg-12">
-          <form role="form">
-            <div class="form-group input-group">
-              <input type="text" class="form-control" placeholder="Search for Items in the Inventory">
-                <span class="input-group-btn">
-                  <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
-                </span>
-            </div>
-          </form>
+          <h1 class="page-header">Inventory <small>Category : {{category.name}}</small></h1>
         </div>
         <div class="col-lg-12">
           {% include 'messages/messages.html' %}
         </div>
       </div>
-      {% for product in products %}     
-        <!-- /.row -->
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                {{product.name}} 
-              </div>
-              <div class="panel-body">
-                <ul class="nav nav-tabs">
-                  <li class="active"><a href = "#main-{{product.id}}" data-toggle="tab">Main</a></li>
-                  <li><a href = "#vendor-information-{{product.id}}" data-toggle="tab">Vendor Information</a></li>
-                </ul>
-                <div class="tab-content">
-                  <div class="tab-pane fade in active" id="main-{{product.id}}">
-                    <h4 style="margin-top:30px;">Product Info</h4>
-                    <div class="row">
-                      <div class="col-lg-4">
-                        <a href="#">
-                           <img class="media-object" src="https://images.omkt.co/Files/402/15EAC0/19F78/8c2112737cfe4cd88779712a4906ef6d/0/hero_forte_2014--kia-1920x.png" alt="..." style="max-heigh:300px;max-width:300px;">
-                        </a>
-                      </div>
-                      <div class="col-lg-8">
-                        <h4 class="media-heading">{{product.name}} <small>by vendor</small></h4>
-                          <ul class="list-unstyled">
-                            <li class="text-danger">Price: $ {{product.price}}</li>                            
-                            <li>Weight: {{product.weight}}</li>
-                            <li>Last Date Updated: {{product.updated_at}}</li>
-                            <li>Date Created: {{product.created_at}}</li>
-                            <li>
-                          </ul>
-                          <dl>
-                            <dt>Product Description</dt>
-                            <dd>{{product.description}}</dd>
-                            <dt>Notes</dt>
-                            <dd>Lorem Ipsum Text</dd>
-                          </dl>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <a href="/admin/inventory/edit/{{product.id}}" type="button" class="btn btn-primary btn-small btn-block">Edit Product</a>
-                    </div>
-                    <div class="row">
-                      <form action="/admin/inventory/delete/{{product.id}}" method = "POST">
-                        {% csrf_token %}
-                        <input type="submit" class="btn btn-danger btn-small btn-block" value="Remove Product">
-                      </form>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="vendor-information-{{product.id}}">
-                    <h4 style="margin-top:30px;">Vendor Info</h4>
-                    <div class="row">
-                      <div class="col-lg-4">
-                        <a href="#">
-                           <img class="media-object" src="https://images.omkt.co/Files/402/15EAC0/19F78/8c2112737cfe4cd88779712a4906ef6d/0/hero_forte_2014--kia-1920x.png" alt="..." style="max-heigh:300px;max-width:300px;">
-                        </a>
-                      </div>
-                      <div class="col-lg-8">
-                        <address>
-                          <strong>{{product.vendor.name}}</strong>
-                          <br>{{product.vendor.address}}
-                          <br>{{product.vendor.city}}, {{product.vendor.state}} {{product.vendor.zip}}
-                          <br>
-                          <abbr title="Phone">P:</abbr>{{product.vendor.phone}}
-                        </address>
-                        <address>
-                          <strong>Contact Info</strong>
-                          <br>Email: {{product.vendor.email}}
-                          <br>Website: {{product.vendor.website_url}}
-                        </address>
-                        <dl>
-                          <dt>Date Joined</dt>
-                          <dd>{{product.vendor.date_joined}}</dd>
-                        </dl>
-                      </div>
-                    </div>          
-                    <div class="row">
-                      <a href="/admin/vendor/edit/{{product.vendor.id}}" type="button" class="btn btn-primary btn-small btn-block">Edit Vendor</a>
-                    </div>
-                  </div>
-                </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Data 
+            </div>
+            <div class="panel-body">
+              <div class='dataTable_wrapper'>
+                <table id="inventory" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Price</th>
+                      <th>Weight</th>
+                      <th>Description</th>
+                      <th>Category</th>
+                      <th>SubCategory</th>
+                      <th>Updated At</th>
+                      <th>Created At</th>
+                      <th>Vendor Name</th>
+                      <th>Vendor Address</th>
+                      <th>Vendor City</th>
+                      <th>Vendor State</th>
+                      <th>Vendor Zip</th>
+                      <th>Vendor Description</th>
+                      <th>Vendor Website</th>
+                      <th>VendorPhone</th>
+                      <th>Vendor Email</th>
+                      <th>Vendor Date Joined</th>
+                    </tr>
+                  </thead>
+                </table>
               </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
-      <div class="row">
-        <div class="col-lg-12">
-          <nav>
-            <ul class="pagination">
-              {% if products.has_previous %}
-                <li>
-                  <a href="?page={{products.previous_page_number}}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-              {% endif %}
-              {% for i in products.paginator.page_range %}
-                <li {% if products.paginator.number == i %} class="active" {% endif %}><a href="?page={{i}}">{{i}}</a></li>
-              {% endfor %}
-              {% if products.has_next %}
-                <li>
-                  <a href="?page={{products.next_page_number}}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              {% endif %}
-            </ul>
-          </nav>
         </div>
       </div>
     </div>
     <!-- /.container-fluid -->
   </div>
   <!-- /#page-wrapper -->
+<script>
+  var subcategory_real_vals;
+  $.ajaxSetup({ 
+    beforeSend: function(xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", "{{csrf_token}}")
+    }
+  })
+  var category = "{{category.id}}"
+  var all_categories;
+  var category_dropdown = [];
+  var vendors = [];
+  $.ajax({
+    type: "GET",
+    contentType: "application/json; charset=utf-8",
+    url: "/store/Vendor/",
+    dataType: "json",
+    async : false,
+    success: function(data){
+      data['data'].forEach(function(i){
+        vendors.push({label : i.name, value : i.id})
+      });
+    }, 
+    error: function(jqXHR, textStatus, errorThrown){
+      alert(textStatus + ": " + errorThrown)
+    }
+  });
+  $.ajax({
+    type: "GET",
+    contentType: "application/json; charset=utf-8",
+    url: "/admin/getAllCategories/",
+    dataType: "json",
+    async : false,
+    success: function(data){
+      all_categories = data 
+      all_categories.forEach(function(item){
+        category_dropdown.push({label : item.name, value : item.id})
+      })
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+      alert(textStatus + ": " + errorThrown)
+    }
+  });
+
+  editor = new $.fn.dataTable.Editor({
+    ajax: {
+      create: {
+        type: 'POST',
+        url:  '/store/Inventory/create/',
+        traditional: false,
+        dataType : 'json'
+      },
+      edit: {
+        type: 'PUT',
+        url:  '/store/Inventory/edit/_id_/',
+        headers: { 'X_METHODOVERRIDE': 'PUT' },
+        traditional: false,
+        dataType : 'json',
+      },
+      remove: {
+        type: 'DELETE',
+        url:  '/store/Inventory/delete/_id_/',
+        headers : { 'X_METHODOVERRIDE' : 'DELETE' },
+        traditional : false,
+        dataType : 'json'
+      }
+    },
+    table: '#inventory',
+    idSrc : 'id',
+    fields: [
+      {
+        label: "Name",
+        name : "name",
+      }, { 
+        label: "Price",
+        name : "price",
+      }, {
+        label: "Weight",
+        name : "weight",
+      }, {
+        label: "Vendor",
+        name : "vendor.id",
+        type : 'select',
+        options: vendors 
+      }, {
+        label: "Category",
+        name : "category.id",
+        id : "category-dropdown",
+        type : 'select',
+        options: category_dropdown 
+      }, {
+        label: "SubCategory",
+        name : "sub_category.id",
+        id : "subcategory-dropdown",
+      }, {
+        label: "Description",
+        name : "description",
+        type : "textarea"
+      }
+    ]
+  });
+
+  
+  editor.on('open', function(e, data, action){
+    openVals = editor.get()
+    var sub_cat = $("#subcategory-dropdown").replaceWith("<select id='subcategory-dropdown' class='form-control'></select>")
+    sub_cat = $("#subcategory-dropdown")
+    all_categories.forEach(function(i){ 
+      if (i.id == openVals['category.id']){
+        var selected = false
+        i.subcategory.forEach(function(j){
+          if (j.id == openVals['sub_category.id']){
+            subcategory_real_vals = j.id
+            selected = true
+          } 
+          else
+            selected = false
+          sub_cat.append($('<option>', {
+            value : j.id,
+            text : j.name,
+            selected : selected
+          }));
+        });
+      }
+    });
+    $("#category-dropdown").on('change', function(){
+      cat = $("#category-dropdown option:selected")  
+      cat_val = cat.val() 
+      sub_cat = document.getElementById("subcategory-dropdown") 
+      sub_cat.options.length = 0
+      sub_cat = $("#subcategory-dropdown")
+      var selected;
+      all_categories.forEach(function(i){
+        if (i.id == cat_val){
+          i.subcategory.forEach(function(j){ 
+            if (j.id == subcategory_real_vals)
+              selected = true
+            else
+              selected = false
+            sub_cat.append($('<option>', {
+              value : j.id,
+              text : j.name,
+              selected : selected
+            }));
+          });
+        }
+      }); 
+    })
+  })
+  editor.on('close', function(e, data, action){
+    $("#subcategory-dropdown").replaceWith("<input id='subcategory-dropdown' class='form-control' type='text'>")    
+    subcategory_real_vals = undefined
+  })
+  editor.on('preSubmit', function(e, data, action){
+    var valueList = {};
+    for (var index in data['data']){
+      valueList[index] = data['data'][index]
+    }
+    delete data['data'];
+    data['data'] = []
+    var data_value;
+    for (var index in valueList){
+      data_value = valueList[index];
+      data_value["sub_category"] = $("#subcategory-dropdown").val()
+      data_value["vendor"] = data_value["vendor"]["id"]
+      data_value['id'] = index;
+      data['data'].push(JSON.stringify(data_value));
+    }
+  });
+  var inventory_table = $('#inventory').DataTable({
+    dom: "Bfrtip",
+    ajax: '/store/Category/'+ category + '/Inventory/',
+    columns: [
+     { 
+        data : null,
+        defaultContent: '',
+        className : 'control',
+        orderable: false
+      },
+      { data : "id"  },
+      { data : "name" },
+      { data : "price" },
+      { data : "weight" },
+      { data : "description"},
+      { data : "category.name"},
+      { data : "sub_category.name"},
+      { data : "updated_at" },
+      { data : "created_at" },
+      { data : "vendor.name"},
+      { data : "vendor.address"},
+      { data : "vendor.city"},
+      { data : "vendor.state"},
+      { data : "vendor.zip"},
+      { data : "vendor.description"},
+      { data : "vendor.website_url"},
+      { data : "vendor.phone_number"},
+      { data : "vendor.email"},
+      { data : "vendor.date_joined"}
+    ],
+    order: [ 1, 'asc' ],
+    select : true, 
+    buttons : [
+      { 
+        extend: "create",
+        editor : editor
+      },
+      { 
+        extend :"edit",
+        editor : editor
+      },
+      { 
+        extend: "remove",
+        editor : editor
+      }
+    ]      
+  });
+</script>
+
 {% endblock %}

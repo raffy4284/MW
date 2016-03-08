@@ -3,11 +3,11 @@ import datetime
 class SerializerMixin(object):
   def __serialize__(self, exclude_list=list()):
     dictionary = {}
-    for c in self._meta.get_fields_with_model():
-      if c[0].name not in exclude_list:
-        attr = getattr(self, c[0].name)
+    for c in self._meta.get_fields():
+      if c.name not in exclude_list:
+        attr = getattr(self, c.name)
         if type(attr) is datetime.date:
           attr = attr.isoformat() 
-        dictionary[c[0].name] = attr 
+        dictionary[c.name] = attr 
     return dictionary
 

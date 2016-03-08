@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+GOOGLE_API_CLIENT_KEY = "AIzaSyDbA7kMzq0oYnyXdW7l-AOP0VMO_c1rlYI"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -41,7 +41,9 @@ INSTALLED_APPS = (
     'adminmica',
     'djangobower',
 )
+
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -49,7 +51,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#    'django.middleware.security.SecurityMiddleware',
+    'micasite.middleware.HttpTunnel.HttpPostTunnelingMiddleware'    
 )
 
 ROOT_URLCONF = 'micasite.urls'
@@ -126,7 +128,6 @@ STATICFILES_FINDERS = (
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
-print STATICFILES_DIRS
 BOWER_INSTALLED_APPS = (
     'startbootstrap-sb-admin-2'
 )
