@@ -1,0 +1,84 @@
+{% extends 'base.html' %}  
+{% block content %}
+  {% include "dashboard/components/navbarmain.html" %}
+  <div id="page-wrapper">
+    <div class="row">
+      <div class="col-lg-12">
+        {% include 'messages/messages.html' %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">History</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="panel panel-primary">
+          <div class='panel-heading'>
+            Data
+          </div>
+          <div class='panel-body'>
+            <div class='dataTable_wrapper'>
+              <table id="history" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Price Sold</th>
+                    <th>Date Sold</th>
+                    <th>Buyer First Name</th>
+                    <th>Buyer Last Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip</th> 
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  $.ajaxSetup({ 
+    beforeSend: function(xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", "{{csrf_token}}")
+    }
+  })
+  
+  var history_table = $('#history').DataTable({
+    ajax: '/store/History/',
+    columns: [
+      { 
+        data : null,
+        defaultContent: '',
+        className : 'control',
+        orderable: false
+      },
+      {
+        data : "id",
+      },
+      { data : "product_name"},
+      { data : "price_sold"},
+      { data : "date_sold"},
+      { data : "first_name"},
+      { data : "last_name" },
+      { data : "address" },
+      { data : "city" },
+      { data : "state" },
+      { data : "zip" },
+      { data : "email" },
+      { data : "phone_number"}
+    ],
+    order: [ 1, 'asc' ],
+    select : true, 
+  });
+</script>
+{% endblock %}

@@ -10,3 +10,5 @@ if __name__ == "__main__":
     Category.objects.all().delete()
     Product.objects.all().delete()
     Vendor.objects.all().delete()
+    History.objects.all().delete()
+    Order.objects.all().delete()

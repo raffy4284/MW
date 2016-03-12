@@ -1,5 +1,4 @@
 {% extends 'base.html' %}  
-{% load staticfiles %}
 {% block content %}
   {% include "dashboard/components/navbarmain.html" %}
   <div id="page-wrapper">
@@ -10,7 +9,7 @@
     </div>
     <div class="row">
       <div class="col-lg-12">
-        <h1 class="page-header">Vendors</h1>
+        <h1 class="page-header">Orders</h1>
       </div>
     </div>
     <div class="row">
@@ -21,21 +20,24 @@
           </div>
           <div class='panel-body'>
             <div class='dataTable_wrapper'>
-              <table id="vendor" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
+              <table id="order" class="responsive table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                   <tr>
-                    <th data-priority="-1"></th>
-                    <th data-priority="0">ID</th>
-                    <th data-priority="1">Name</th>
-                    <th data-priority="2">Address</th>
-                    <th data-priority="3">City</th>
-                    <th data-priority="4">State</th>
-                    <th data-priority="5">Zip</th>
-                    <th data-priority="10">Description</th>
-                    <th data-priority="6" >Website</th>
-                    <th data-priority="7">Phone</th>
-                    <th data-priority="8">Email</th>
-                    <th data-priority="9">Date Joined</th>
+                    <th></th>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Status</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Date Sold</th>
+                    <th>Product Name</th>
+                    <th>Product Description</th>
+                    <th>Product Price</th>
                   </tr>
                 </thead>
               </table>
@@ -54,62 +56,62 @@
   })
   editor = new $.fn.dataTable.Editor({
     ajax: {
-      create: {
-        type: 'POST',
-        url:  '/store/Vendor/create/',
-        traditional: false,
-        dataType : 'json'
-      },
       edit: {
         type: 'PUT',
-        url:  '/store/Vendor/edit/_id_/',
+        url:  '/store/Order/edit/_id_/',
         headers: { 'X_METHODOVERRIDE': 'PUT' },
         traditional: false,
         dataType : 'json',
       },
-      remove: {
-        type: 'DELETE',
-        url:  '/store/Vendor/delete/_id_/',
-        headers : { 'X_METHODOVERRIDE' : 'DELETE' },
-        traditional : false,
-        dataType : 'json'
-      }
     },
-    table: '#vendor',
+    table: '#order',
     idSrc : 'id',
     fields: [
       {
-        label: "Name",
-        name : "name",
+        label: 'First Name',
+        name: 'first_name',
       }, { 
-        label: "Address",
-        name : "address",
+        label: 'Last Name',
+        name : 'last_name'
       }, {
-        label: "City",
-        name : "city",
+        label: 'Status',
+        name : 'status',
+        type : 'select',
+        options : [ 
+          { label: 'Pending', value: 'Pending'},
+          { label: 'Processed', value: 'Processed'},
+          { label: 'Shipped', value : 'Shipped'},
+          { label: 'Received', value: 'Received'},
+          { label: 'Returned', value: 'Returned'}
+        ]
       }, {
-        label: "State",
-        name : "state",
+        label: 'Address',
+        name : 'address',
       }, {
-        label: "Zipcode",
-        name : "zip",
+        label: 'City',
+        name : 'city',
       }, {
-        label: "Description",
-        name : "description",
-        type : 'textarea'
+        label: 'State', 
+        name : 'state'
       }, {
-        label: "Website",
-        name : "website_url",
+        label: 'Zipcode',
+        name : 'zip' 
       }, {
-        label: "Phone Number",
-        name : "phone_number"
+        label: 'Phone Number',
+        name : 'phone_number'
       }, {
-        label: "Email",
-        name : "email"
+        label: 'Email', 
+        name : 'email'
       }, {
-        label: "Date Joined",
-        name : "date_joined",
-	type : "date"
+        label: 'Date Sold',
+        name : 'date_sold',
+        type : 'date'
+      }, {
+        label: 'Price',
+        name : 'price_sold'
+      }, {
+        name : 'product.id',
+        hidden: true
       }
     ]
   });
@@ -124,13 +126,15 @@
     for (var index in valueList){
       data_value = valueList[index];
       data_value['id'] = index;
+      data_value['product'] = data_value['product']['id']
       data['data'].push(JSON.stringify(data_value));
+   
     }
   });
   
-  var vendor_table = $('#vendor').DataTable({
+  var order_table = $('#order').DataTable({
     dom: "Bfrtip",
-    ajax: '/store/Vendor/',
+    ajax: '/store/Order/',
     columns: [
       { 
         data : null,
@@ -141,16 +145,19 @@
       {
         data : "id",
       },
-      { data : "name"},
+      { data : "first_name"},
+      { data : "last_name"},
+      { data : 'status' },
       { data : "address"},
       { data : "city"},
       { data : "state"},
       { data : "zip"},
-      { data : "description"},
-      { data : "website_url"},
       { data : "phone_number"},
       { data : "email"},
-      { data : "date_joined"}
+      { data : "date_sold"},
+      { data : "product.name" },
+      { data : "product.description"},
+      { data : "price_sold"}
     ],
     order: [ 1, 'asc' ],
     select : true, 
@@ -162,11 +169,8 @@
       { 
         extend :"edit",
         editor : editor
-      },
-      { 
-        extend: "remove",
-        editor : editor
       }
+
     ]      
   });
 </script>

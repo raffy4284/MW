@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate,login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_exempt
-from store.models import Category, Product, Vendor
+from store.models import * 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from micasite.settings import GOOGLE_API_CLIENT_KEY
@@ -42,7 +42,10 @@ def loginPage(request):
 
 @user_passes_test(lambda u: u.is_superuser, login_url="login")
 def index(request):
-  return render(request, 'dashboard/home.html',{})
+  context = {
+              'order_count' : Order.objects.exclude(status="Received").count()
+            } 
+  return render(request, 'dashboard/home.html',context)
 
 @csrf_exempt
 def logoutUser(request):
@@ -98,7 +101,15 @@ def createCategory(request):
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def inventory(request, ID):
-  return render(request, 'dashboard/inventory/index.html', { "category" : Category.objects.get(id=ID) })
+  context = {}
+  if ID == 'all':
+    context['category_id'] = 'all'
+    context['category_title'] = 'All'
+  else:
+    category = Category.objects.get(id=ID)
+    context['category_id'] = category.id
+    context['category_title'] = category.name
+  return render(request, 'dashboard/inventory/index.html', context)
 
 @user_passes_test(lambda u: u.is_superuser, login_url = "login")
 def getProducts(request,category):
@@ -171,3 +182,10 @@ def editVendor(request, ID):
 def vendor(request):
   return render(request, 'dashboard/vendor/index.html', {"GOOGLE_API_KEY" : GOOGLE_API_CLIENT_KEY})
 
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def history(request):
+  return render(request, 'dashboard/history/index.html', {"GOOGLE_API_KEY" : GOOGLE_API_CLIENT_KEY})
+
+@user_passes_test(lambda u: u.is_superuser, login_url = "login")
+def order(request):
+  return render(request, 'dashboard/order/index.html', {"GOOGLE_API_KEY" : GOOGLE_API_CLIENT_KEY})

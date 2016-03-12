@@ -5,6 +5,7 @@ import random
 from faker import Factory
 from django.core.wsgi import get_wsgi_application
 import datetime
+from datetime import date
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = 'micasite.settings'
     application = get_wsgi_application()
@@ -67,5 +68,31 @@ if __name__ == "__main__":
           sub_category = sub_categories[random.randrange(0,len(sub_categories))],
           vendor = vendors[random.randrange(0,len(vendors))],
           weight = 12,
+          quantity = 10,
           description = fake.paragraph()
+        ).save()
+    for i in range(1,1000):
+        History(
+          first_name = fake.first_name(),
+          last_name = fake.last_name(),
+          product_name = fake.word(),
+          price_sold = random.randrange(1,10000,2)+int(random.random()*100)/100.0, 
+          address = fake.street_address(),
+          city = fake.city(),
+          state = fake.state_abbr(),
+          zip = random.randrange(100000,999999),
+          email = fake.email(),
+        ).save() 
+    for i in range(1,1000):
+        Order(
+          first_name = fake.first_name(),
+          last_name = fake.last_name(),
+          price_sold = random.randrange(1,10000,2)+int(random.random()*100)/100.0, 
+          address = fake.street_address(),
+          city = fake.city(),
+          state = fake.state_abbr(),
+          zip = random.randrange(100000,999999),
+          email = fake.email(),
+          product = Product.objects.all()[random.randrange(1,999)],
+          date_sold = date(random.randrange(2008,2016), random.randrange(1,12), random.randrange(1,28))
         ).save()

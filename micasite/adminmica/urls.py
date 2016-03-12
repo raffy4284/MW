@@ -14,5 +14,7 @@ urlpatterns = [
   url(r'inventory/edit/(?P<ID>[0-9]+)/$', views.editInventory, name = "editInventory"),
   url(r'inventory/delete/(?P<ID>[0-9]+)/$', views.deleteInventory, name = "deleteInventory"),
   url(r'vendor/edit/(?P<ID>[0-9]+)/$', views.editVendor, name="editVendor"),
-  url(r'vendor/all/$', views.vendor, name="vendor")
+  url(r'vendor/all/$', views.vendor, name="vendor"),
+  url(r'history/all/$', views.history, name='history'),
+  url(r'order/all/$', views.order, name='order'),
 ]

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse 
-from .models import Vendor,Product 
+from .models import * 
 from adminmica.forms import *
 import json
 
@@ -13,6 +13,18 @@ def createInvalidJsonMessage():
       reason="Invalid json parameter"
     )
 
+def getAllOrder(request):
+  json_response = {}
+  json_response['data'] = []
+  for i in Order.objects.all():
+    serialized = i.__serialize__(exclude_list = ['product'])
+    serialized['product'] = i.product.__serialize__(exclude_list = ['vendor', 'sub_category', 'order'])
+    json_response['data'].append(serialized)
+  return JsonResponse(json_response, safe=False) 
+
+def getAllHistory(request):
+  return JsonResponse({'data' : [history.__serialize__() for history in History.objects.all()]}, safe=False)
+
 def getAllInventory(request, ID):
   if ID == "all":
     product_set = Product.objects.all()
@@ -23,7 +35,7 @@ def getAllInventory(request, ID):
       return createInvalidJsonMessage()
   all_inventory = list()
   for inventory in product_set:
-    inventory_serialized = inventory.__serialize__(exclude_list=['sub_category', 'vendor'])
+    inventory_serialized = inventory.__serialize__(exclude_list=['sub_category', 'vendor', 'order'])
     inventory_serialized['vendor'] = inventory.vendor.__serialize__(exclude_list=['product'])
     inventory_serialized['sub_category'] = {}
     inventory_serialized['sub_category']['name'] = inventory.sub_category.name
@@ -80,7 +92,7 @@ def createEditProduct(request, ID=None):
   json_response = {}
   json_response['data'] = []
   for product in product_instances:
-    serialized = product.__serialize__(exclude_list=['vendor', 'sub_category'])
+    serialized = product.__serialize__(exclude_list=['vendor', 'sub_category', 'order'])
     serialized['vendor'] = product.vendor.__serialize__(exclude_list=['product'])
     serialized['sub_category'] = {}
     serialized['sub_category']['name'] = product.sub_category.name
@@ -147,3 +159,73 @@ def createEditVendor(request, ID=None):
 def deleteVendor(request, ID):
   Vendor.objects.get(id=ID).delete()
   return JsonResponse({})
+
+
+def createEditOrder(request, ID=None):
+  id_list = []
+  if request.method == "POST":
+    try:
+      params = request.POST.getlist('data[]')
+    except:
+      return createInvalidJsonMessage()
+  else:
+    try:
+      params = request.PUT.getlist('data[]')
+    except:
+      return createInvalidJsonMessage() 
+  for index in range(0, len(params)):
+    param_arrays = json.loads(params[index])
+    id_list.append(param_arrays['id'])
+    params[index] = OrderForm(param_arrays)
+
+    if params[index].is_valid():
+      params[index] = params[index].cleaned_data
+    else:
+      error_response = {}
+      error_response['fieldErrors'] = []
+      for key, value in params[index].errors.iteritems():
+        error_response['fieldErrors'].append({ "name" : key, "status" : value.as_text() })
+      print error_response
+      return JsonResponse(error_response, safe=False)
+  if request.method == "POST":
+    order_instances = [Order()]*len(params)
+  else: 
+    order_instances = Order.objects.filter(id__in=id_list)
+  for order in order_instances:
+    for data in params:
+      for key, value in data.iteritems():
+        if key == "product":
+          order.product = value
+        elif not hasattr(order, key):
+          return createInvalidJsonMessage()
+        elif key != 'id':
+          setattr(order, key, value)
+  for order in order_instances:
+    order.save()
+    if order.status == 'Received':
+      History( 
+        first_name = order.first_name,
+        last_name = order.last_name,
+        product_name = order.product.name,
+        price_sold = order.price_sold,
+        date_sold = order.date_sold,
+        address = order.address,
+        city = order.city,
+        state = order.state,
+        zip = order.zip,
+        description = order.product.description,
+        email = order.email,
+        phone_number = order.phone_number 
+      ).save()
+  json_response = {}
+  json_response['data'] = []
+  for order in order_instances:
+    serialized = order.__serialize__(exclude_list=['product'])
+    serialized['product'] = order.product.__serialize__(exclude_list=['sub_category', 'vendor', 'order'])
+    json_response['data'].append(serialized)
+  return JsonResponse(json_response, safe=False)
+
+def deleteOrder(request, ID):
+  Order.objects.get(id=ID).delete()
+  return JsonResponse({})
+ 

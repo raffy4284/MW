@@ -6,7 +6,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-12">
-          <h1 class="page-header">Inventory <small>Category : {{category.name}}</small></h1>
+          <h1 class="page-header">Inventory <small>Category : {{category_title}}</small></h1>
         </div>
         <div class="col-lg-12">
           {% include 'messages/messages.html' %}
@@ -14,7 +14,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <div class="panel panel-default">
+          <div class="panel panel-primary">
             <div class="panel-heading">
               Data 
             </div>
@@ -26,9 +26,10 @@
                       <th></th>
                       <th>ID</th>
                       <th>Name</th>
-                      <th>Price</th>
+                      <th>Current Price</th>
                       <th>Weight</th>
                       <th>Description</th>
+                      <th>Quantity</th>
                       <th>Category</th>
                       <th>SubCategory</th>
                       <th>Updated At</th>
@@ -62,7 +63,7 @@
       xhr.setRequestHeader("X-CSRFToken", "{{csrf_token}}")
     }
   })
-  var category = "{{category.id}}"
+  var category = "{{category_id}}"
   var all_categories;
   var category_dropdown = [];
   var vendors = [];
@@ -133,6 +134,9 @@
       }, {
         label: "Weight",
         name : "weight",
+      }, {
+        label: "Quantity",
+        name: "quantity"
       }, {
         label: "Vendor",
         name : "vendor.id",
@@ -238,6 +242,7 @@
       { data : "price" },
       { data : "weight" },
       { data : "description"},
+      { data : "quantity"},
       { data : "category.name"},
       { data : "sub_category.name"},
       { data : "updated_at" },

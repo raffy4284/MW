@@ -1,5 +1,5 @@
 from django import forms
-from store.models import Category, Vendor, Product
+from store.models import * 
 from django.forms import ModelForm
 from django.forms.widgets import Select
 
@@ -21,7 +21,7 @@ class EditProductForm(ModelForm):
       'sub_category': forms.Select(attrs={'class' : 'form-control'}),
       'vendor': forms.Select(attrs={'class' : 'form-control'}),
       'description' : forms.Textarea(attrs = {'class' : 'form-control', 'style' : 'resize:vertical'}),
-      'weight' : forms.NumberInput(attrs = {'class' : 'form-control'})
+      'weight' : forms.NumberInput(attrs = {'class' : 'form-control'}),
     }
 
 class VendorForm(ModelForm):
@@ -40,3 +40,13 @@ class VendorForm(ModelForm):
       'phone_number' : forms.TextInput(attrs={'class' : 'form-control'}),
       'date_joined' : forms.TextInput(attrs={'class' : 'form-control'})
     }  	
+
+class OrderForm(ModelForm):
+  class Meta:
+    model = Order
+    exclude = []
+
+class HistoryForm(ModelForm):
+  class Meta:
+    model = History
+    exclude = []

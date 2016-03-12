@@ -9,5 +9,10 @@ urlpatterns = [
   url(r'^Vendor/$', views.getAllVendor, name = 'AllVendor'),
   url(r'^Vendor/create/$', views.createEditVendor, name='CreateVendor'),
   url(r'^Vendor/edit/(?P<ID>[0-9]+)/$',  views.createEditVendor, name='EditVendor'),
-  url(r'^Vendor/delete/(?P<ID>[0-9]+)/$', views.deleteVendor, name='DeleteVendor')
+  url(r'^Vendor/delete/(?P<ID>[0-9]+)/$', views.deleteVendor, name='DeleteVendor'),
+  url(r'^History/$', views.getAllHistory, name='AllHistory'),
+  url(r'^Order/$', views.getAllOrder, name = 'AllOrder'),
+  url(r'^Order/create/$', views.createEditOrder, name='CreateOrder'),
+  url(r'^Order/edit/(?P<ID>[0-9]+)/$', views.createEditOrder, name='EditOrder'),
+  url(r'^Order/delete/(?P<ID>[0-9]+)/$', views.deleteOrder, name='DeleteOrder'),
 ]

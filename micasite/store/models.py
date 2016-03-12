@@ -46,6 +46,44 @@ class Product(models.Model, SerializerMixin):
   description = models.TextField(blank = True);	
   updated_at = models.DateTimeField(auto_now = True, unique_for_date = True)
   created_at = models.DateTimeField(auto_now_add = True, unique_for_date = True)
+  quantity = models.IntegerField()
   def __str__(self):
     return self.name
 
+class History(models.Model, SerializerMixin):
+  first_name = models.CharField(max_length = 100, blank = False)
+  last_name = models.CharField(max_length = 100, blank = False)
+  product_name = models.CharField(max_length = 100, blank = False)
+  price_sold = models.DecimalField(decimal_places = 2, blank = False, max_digits = 6)
+  date_sold = models.DateTimeField(auto_now_add = True)
+  address = models.CharField(max_length = 100)
+  city = models.CharField(max_length = 100)
+  state = models.CharField(max_length = 2)
+  zip = models.IntegerField()
+  description = models.TextField(blank = True)
+  email = models.EmailField()
+  phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message = "phone number must be entered in the format: '+999999999'")
+  phone_number = models.CharField(validators=[phone_regex], blank = True, max_length = 16)
+
+
+class Order(models.Model, SerializerMixin):
+  first_name = models.CharField(max_length = 100, blank = False)
+  last_name = models.CharField(max_length = 100, blank = False)
+  product = models.ForeignKey(Product, on_delete = models.CASCADE)
+  price_sold = models.DecimalField(decimal_places = 2, blank = False, max_digits = 6)
+  date_sold = models.DateField()
+  address = models.CharField(max_length = 100)
+  city = models.CharField(max_length = 100)
+  state = models.CharField(max_length = 2)
+  status_choices = (
+    ('Pennding', 'Pending'),
+    ('Processed', 'Processed'),
+    ('Shipped', 'Shipped'),
+    ('Received', 'Received'),
+    ('Returned', 'Returned')
+  )
+  status = models.CharField(max_length=9, choices=status_choices, default='Pending')
+  zip = models.IntegerField()
+  email = models.EmailField()
+  phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message = "phone number must be entered in the format: '+999999999'")
+  phone_number = models.CharField(validators=[phone_regex], blank = True, max_length = 16)

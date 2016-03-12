@@ -1,11 +1,191 @@
 {% extends 'base.html' %}  
+{% load staticfiles %}
 {% block content %}
   {% include "dashboard/components/navbarmain.html" %}
   <div id="page-wrapper">
-    <div class="row">
-      <div class="col-lg-12">
-        {% include 'messages/messages.html' %}
+    <div class='container-fluid'>
+      <div class="row">
+        <div class="col-lg-12">
+          {% include 'messages/messages.html' %}
+        </div>  
+      </div> 
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="page-header">Dashboard</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+      </div>
+      <!-- /.row --> 
+      <div class='row'>
+        <div class="col-lg-3 col-md-6">
+          <div class="panel panel-green">
+            <div class="panel-heading">
+              <div class="row">
+                <div class="col-xs-3">
+                  <i class="fa fa-tasks fa-5x"></i>
+                </div>
+                <div class="col-xs-9 text-right">
+                  <div class="huge">12</div>
+                  <div>New Tasks!</div>
+                </div>
+              </div>
+            </div>
+            <a href="#">
+              <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <div class="row">
+                <div class="col-xs-3">
+                  <i class="fa fa-comments fa-5x"></i>
+                </div>
+                <div class="col-xs-9 text-right">
+                  <div class="huge">26</div>
+                  <div>New Comments!</div>
+                </div>
+              </div>
+            </div>
+            <a href="#">
+              <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="panel panel-red">
+            <div class="panel-heading">
+              <div class="row">
+                <div class="col-xs-3">
+                  <i class="fa fa-support fa-5x"></i>
+                </div>
+                <div class="col-xs-9 text-right">
+                  <div class="huge">13</div>
+                  <div>Support Tickets!</div>
+                </div>
+              </div>
+            </div>
+            <a href="#">
+              <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="panel panel-yellow">
+            <div class="panel-heading">
+              <div class="row">
+                <div class="col-xs-3">
+                  <i class="fa fa-shopping-cart fa-5x"></i>
+                </div>
+                <div class="col-xs-9 text-right">
+                  <div class="huge">{{order_count}}</div>
+                  <div>Pending Orders!</div>
+                </div>
+              </div>
+            </div>
+            <a href="/admin/order/all/">
+              <div class="panel-footer">
+                <span class="pull-left">View Details</span>
+                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                <div class="clearfix"></div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div> 
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <i class="fa fa-bar-chart-o fa-fw"></i> Profit 
+              <div class="pull-right">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                    Actions
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a href="#">Action</a>
+                    </li>
+                    <li><a href="#">Another action</a>
+                    </li>
+                    <li><a href="#">Something else here</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="#">Separated link</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body" style="height:400px">
+              <div id="profit-chart"><img src="{% static 'images/balls.svg' %}" id='loader'></div>
+            </div>
+            <!-- /.panel-body -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
+<script>
+  var data_item
+  var map = {}
+  function get_price_chart_data(){
+    $.ajax({
+      type: "GET",
+      contentType: "application/json; charset=utf-8",
+      url: "/store/Order/",
+      dataType: "json",
+      success: function(data){
+        function populate_chart(data, callback){ 
+          data_item=data
+          data['data'].forEach(function(item){
+            date_sold = item['date_sold'].split('T')[0]
+            if (date_sold in map){
+               map[date_sold] += parseFloat(item['price_sold'])
+               map[date_sold] = Math.round(map[date_sold]*100)/100
+            }
+            else{
+              map[date_sold] = Math.round(parseFloat(item['price_sold'])*100)/100
+            }
+          });
+          callback(map)
+        }
+        populate_chart(data, function(map){
+          morris_table = Array() 
+          for (var item in map){
+            if (map.hasOwnProperty(item))
+              morris_table.push({'y' : item, 'a': map[item]})
+          }
+          $("#profit-chart").empty()
+          Morris.Area({
+            element: 'profit-chart',
+            data: morris_table,
+            xkey: 'y',
+            ykeys: ['a'],
+           labels: ['Series A']
+          });
+        })
+      },
+      error: function(jqXHR, textStatus, errorThrown){
+      },
+    });
+  }
+ get_price_chart_data()
+
+</script>
 {% endblock %}
